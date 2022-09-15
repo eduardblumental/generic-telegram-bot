@@ -1,8 +1,8 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-REGISTER_USER, REGISTER_CONTENT_CREATOR = map(str, range(2))
+from states import *
 
-unregistered_user_start_keyboard = InlineKeyboardMarkup(
+unregistered_user_keyboard = InlineKeyboardMarkup(
     [
         [
             InlineKeyboardButton('I am looking for content 🧞‍♀️', callback_data=REGISTER_USER)
@@ -14,7 +14,7 @@ unregistered_user_start_keyboard = InlineKeyboardMarkup(
 )
 
 
-registered_user_start_keyboard = InlineKeyboardMarkup(
+registered_user_keyboard = InlineKeyboardMarkup(
     [
         [
             InlineKeyboardButton('Edit my profile 📜', callback_data=''),
