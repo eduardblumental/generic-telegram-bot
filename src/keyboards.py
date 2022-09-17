@@ -2,7 +2,16 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from states import *
 
-unregistered_user_keyboard = InlineKeyboardMarkup(
+start_menu_keyboard = InlineKeyboardMarkup(
+    [
+        [
+            InlineKeyboardButton('Register', callback_data=REGISTER)
+        ]
+    ]
+)
+
+
+user_type_keyboard = InlineKeyboardMarkup(
     [
         [
             InlineKeyboardButton('I am looking for content 🧞‍♀️', callback_data=REGISTER_USER)
@@ -17,12 +26,12 @@ unregistered_user_keyboard = InlineKeyboardMarkup(
 registered_user_keyboard = InlineKeyboardMarkup(
     [
         [
-            InlineKeyboardButton('Edit my profile 📜', callback_data=''),
-            InlineKeyboardButton('Find new content 🧞‍♀️', callback_data='')
+            InlineKeyboardButton('Edit my profile 📜', callback_data='0'),
+            InlineKeyboardButton('Find new content 🧞‍♀️', callback_data='0')
         ],
         [
-            InlineKeyboardButton('My content creators 🧜🏻‍♀️', callback_data=''),
-            InlineKeyboardButton('Delete account 👋🏻', callback_data='')
+            InlineKeyboardButton('My content creators 🧜🏻‍♀️', callback_data='0'),
+            InlineKeyboardButton('Delete account 👋🏻', callback_data='0')
         ]
     ]
 )
