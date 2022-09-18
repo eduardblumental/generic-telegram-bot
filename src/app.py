@@ -1,15 +1,9 @@
 import os
+import logging as log
 
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    CallbackQueryHandler,
-    MessageHandler,
-    ConversationHandler,
-    filters
-)
+from telegram.ext import ApplicationBuilder
 
-from handlers import *
+from handlers import main_conversation_handlers
 
 log.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=log.INFO)
 
@@ -17,30 +11,5 @@ log.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', l
 if __name__ == '__main__':
     app = ApplicationBuilder().token(os.environ.get('TELEGRAM_BOT_TOKEN')).build()
 
-    register_user_conversation = ConversationHandler(
-        entry_points=[CallbackQueryHandler(start_registration, pattern=f'^{REGISTER_USER}$')],
-        states={
-            FIRST_NAME: [MessageHandler(filters=filters.TEXT, callback=name)]
-        },
-        fallbacks=[CallbackQueryHandler(start_registration, pattern=f'^{REGISTER_USER}$')]
-    )
-
-
-    registration_handlers = [
-        CallbackQueryHandler(register, pattern=f'^{REGISTER}$'),
-        register_user_conversation,
-        #register_content_creator_conversation
-    ]
-
-    main_conversation = ConversationHandler(
-        entry_points=[CommandHandler(command='start', callback=start)],
-        states={
-            UNREGISTERED_USER: registration_handlers,
-            REGISTER_USER: []
-        },
-        fallbacks=[CommandHandler(command='start', callback=start)]
-    )
-
-    app.add_handler(main_conversation)
-    app.add_handler(MessageHandler(filters=filters.TEXT, callback=random_message))
+    app.add_handlers(main_conversation_handlers)
     app.run_polling()

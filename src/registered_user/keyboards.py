@@ -1,6 +1,5 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-from states import *
 
 registered_user_keyboard = InlineKeyboardMarkup(
     [
