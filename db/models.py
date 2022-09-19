@@ -20,7 +20,7 @@ class ContentCreators(Model):
     country = CharField()
     birth_date = DateField()
     bio = TextField()
-    profile_pic = BlobField()
+    profile_pic = CharField()
     registration_date = DateTimeField(default=datetime.now())
 
     class Meta:

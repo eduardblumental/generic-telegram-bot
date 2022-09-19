@@ -19,13 +19,11 @@ DEFAULT = ContextTypes.DEFAULT_TYPE
 async def start(update: Update, context: DEFAULT):
     if Users.select().where(Users.user_id == update.effective_user.id):
         await update.message.reply_text(
-            text="Welcome User!",
-            reply_markup=registered_user_keyboard)
+            text="Welcome User!")
         return REGISTERED_USER
     elif ContentCreators.select().where(ContentCreators.user_id == update.effective_user.id):
         await update.message.reply_text(
-            text="Welcome Content Creator",
-            reply_markup=registered_user_keyboard)
+            text="Welcome Content Creator")
         return CONTENT_CREATOR
     else:
         await update.message.reply_text(

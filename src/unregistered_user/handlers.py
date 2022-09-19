@@ -10,7 +10,8 @@ from telegram.ext import (
 
 from .keyboards import unregistered_start_menu_keyboard, registration_type_keyboard
 from .states import REGISTER, LEARN_MORE
-from .user_registration.handlers import register_user_conversation_handler
+from .user_registration.handlers import register_user_conversation
+from .content_creator_registration.handlers import register_content_creator_conversation
 
 DEFAULT = ContextTypes.DEFAULT_TYPE
 
@@ -41,5 +42,6 @@ async def learn_more(update: Update, context: DEFAULT):
 unregistered_user_handlers = [
     CallbackQueryHandler(callback=register, pattern=f'^{REGISTER}$'),
     CallbackQueryHandler(callback=learn_more, pattern=f'^{LEARN_MORE}$'),
-    register_user_conversation_handler
+    register_user_conversation,
+    register_content_creator_conversation
 ]
