@@ -21,7 +21,7 @@ async def start(update: Update, context: DEFAULT):
         await update.message.reply_text(
             text="Welcome User!")
         return REGISTERED_USER
-    elif ContentCreators.select().where(ContentCreators.user_id == update.effective_user.id):
+    elif ContentCreators.select().where(ContentCreators.content_creator_id == update.effective_user.id):
         await update.message.reply_text(
             text="Welcome Content Creator")
         return CONTENT_CREATOR

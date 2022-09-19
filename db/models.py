@@ -15,12 +15,13 @@ class Users(Model):
 
 
 class ContentCreators(Model):
-    user_id = IntegerField(primary_key=True)
+    content_creator_id = IntegerField(primary_key=True)
     first_name = CharField()
     country = CharField()
-    birth_date = DateField()
+    age = IntegerField()
     bio = TextField()
     profile_pic = CharField()
+    channel_id = IntegerField(null=True)
     registration_date = DateTimeField(default=datetime.now())
 
     class Meta:
@@ -28,4 +29,15 @@ class ContentCreators(Model):
         db_table = 'ContentCreators'
 
 
-db.create_tables([Users, ContentCreators])
+class Followings(Model):
+    user_id = IntegerField()
+    content_creator_id = IntegerField()
+    following_date = DateTimeField(default=datetime.now())
+
+    class Meta:
+        database = db
+        db_table = 'ContentCreators'
+        primary_key = CompositeKey('user_id', 'content_creator_id')
+
+
+db.create_tables([Users, ContentCreators, Followings])

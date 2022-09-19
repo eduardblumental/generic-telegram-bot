@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 
 from telegram import Update
 from telegram.ext import (
@@ -11,7 +12,7 @@ from telegram.ext import (
 )
 
 from db.models import ContentCreators
-from .states import FIRST_NAME, COUNTRY, BIRTH_DATE, BIO, PROFILE_PIC
+from .states import FIRST_NAME, COUNTRY, AGE, BIO, PROFILE_PIC
 from ..states import REGISTER_CONTENT_CREATOR
 
 DEFAULT = ContextTypes.DEFAULT_TYPE
@@ -27,7 +28,7 @@ async def start_registration(update: Update, context: DEFAULT):
 
 
 async def name(update: Update, context: DEFAULT):
-    context.user_data['user_id'] = update.effective_user.id
+    context.user_data['content_creator_id'] = update.effective_user.id
     context.user_data['first_name'] = update.message.text
 
     await update.message.reply_text(
@@ -39,12 +40,12 @@ async def country(update: Update, context: DEFAULT):
     context.user_data['country'] = update.message.text
 
     await update.message.reply_text(
-        text='Select your birth date.')
-    return BIRTH_DATE
+        text='How old are you?')
+    return AGE
 
 
-async def birth_date(update: Update, context: DEFAULT):
-    context.user_data['birth_date'] = datetime.strptime(update.message.text, '%d/%m/%Y')
+async def age(update: Update, context: DEFAULT):
+    context.user_data['age'] = int(update.message.text)
 
     await update.message.reply_text(
         text='Tell us more about yourself.')
@@ -60,16 +61,19 @@ async def bio(update: Update, context: DEFAULT):
 
 
 async def profile_pic(update: Update, context: DEFAULT):
-    context.user_data['profile_pic'] = update.message.photo[-1].file_id
+    content_creator_id = context.user_data.get('content_creator_id')
+    first_name = context.user_data.get('first_name')
+    country = context.user_data.get('country')
+    age = context.user_data.get('age')
+    bio = context.user_data.get('bio')
+
+    file = await update.message.photo[-1].get_file()
+    profile_pic_path = os.path.join('..', 'static', f"{first_name}_{content_creator_id}.jpg")
+    await file.download(profile_pic_path)
 
     ContentCreators.create(
-        user_id=context.user_data.get('user_id'),
-        first_name=context.user_data.get('first_name'),
-        country=context.user_data.get('country'),
-        birth_date=context.user_data.get('birth_date'),
-        bio=context.user_data.get('bio'),
-        profile_pic=context.user_data.get('profile_pic')
-    ).save()
+        content_creator_id=content_creator_id, first_name=first_name,
+        country=country, age=age, bio=bio, profile_pic=profile_pic_path).save()
 
     await update.message.reply_text(
         text='Thank you for the registration! Use /start command to continue.')
@@ -85,7 +89,7 @@ register_content_creator_conversation = ConversationHandler(
     states={
         FIRST_NAME: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=name)],
         COUNTRY: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=country)],
-        BIRTH_DATE: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=birth_date)],
+        AGE: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=age)],
         BIO: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=bio)],
         PROFILE_PIC: [MessageHandler(filters=filters.PHOTO, callback=profile_pic)]
     },
