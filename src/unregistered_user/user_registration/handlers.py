@@ -1,6 +1,5 @@
 from telegram import Update
 from telegram.ext import (
-    CommandHandler,
     CallbackQueryHandler,
     MessageHandler,
     ConversationHandler,
@@ -9,43 +8,43 @@ from telegram.ext import (
 )
 
 from db.models import Users
-from .states import FIRST_NAME
+from .states import USERNAME
 from ..states import REGISTER_USER
 
 DEFAULT = ContextTypes.DEFAULT_TYPE
 END = ConversationHandler.END
 
 
-async def start_registration(update: Update, context: DEFAULT):
+async def q_handle_start_registration(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(
-        text='Please, type in your first name.')
-    return FIRST_NAME
+        text="Please, type in your username. Don't hesitate to get creative 😉")
+    return USERNAME
 
 
-async def name(update: Update, context: DEFAULT):
+async def handle_username(update: Update, context: DEFAULT):
     user_id = update.effective_user.id
-    first_name = update.message.text
+    username = update.message.text
 
-    user = Users.create(user_id=user_id, first_name=first_name)
+    user = Users.create(user_id=user_id, username=username)
     user.save()
 
     await update.message.reply_text(
-        text='Thank you for the registration! Use /start command to continue.')
+        text=f'Welcome to the club {username}! Use /start command to continue.')
     return END
 
 
-async def error(update: Update, context: DEFAULT):
-    await update.message.reply_text(f'I am not sure what "{update.message.text}" means. Please, try again.')
+async def handle_error(update: Update, context: DEFAULT):
+    await update.message.reply_text(f'I am not sure what "{update.message.text}" means. Please, retype your username.')
 
 
 register_user_conversation = ConversationHandler(
-    entry_points=[CallbackQueryHandler(callback=start_registration, pattern=f'^{REGISTER_USER}$')],
+    entry_points=[CallbackQueryHandler(callback=q_handle_start_registration, pattern=f'^{REGISTER_USER}$')],
     states={
-        FIRST_NAME: [
-            MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=name)
+        USERNAME: [
+            MessageHandler(filters=(filters.TEXT and ~filters.COMMAND), callback=handle_username)
         ]
     },
-    fallbacks=[MessageHandler(filters=filters.ALL, callback=error)]
+    fallbacks=[MessageHandler(filters=filters.ALL, callback=handle_error)]
 )

@@ -1,0 +1,3 @@
+from ..states import CHANGE_USER_DATA
+
+USERNAME = CHANGE_USER_DATA + '0'

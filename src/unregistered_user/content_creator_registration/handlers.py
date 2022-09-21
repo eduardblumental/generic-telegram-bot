@@ -19,7 +19,7 @@ DEFAULT = ContextTypes.DEFAULT_TYPE
 END = ConversationHandler.END
 
 
-async def start_registration(update: Update, context: DEFAULT):
+async def q_handle_start_registration(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(
@@ -27,7 +27,7 @@ async def start_registration(update: Update, context: DEFAULT):
     return FIRST_NAME
 
 
-async def name(update: Update, context: DEFAULT):
+async def handle_first_name(update: Update, context: DEFAULT):
     context.user_data['content_creator_id'] = update.effective_user.id
     context.user_data['first_name'] = update.message.text
 
@@ -36,7 +36,7 @@ async def name(update: Update, context: DEFAULT):
     return COUNTRY
 
 
-async def country(update: Update, context: DEFAULT):
+async def handle_country(update: Update, context: DEFAULT):
     context.user_data['country'] = update.message.text
 
     await update.message.reply_text(
@@ -44,7 +44,7 @@ async def country(update: Update, context: DEFAULT):
     return AGE
 
 
-async def age(update: Update, context: DEFAULT):
+async def handle_age(update: Update, context: DEFAULT):
     context.user_data['age'] = int(update.message.text)
 
     await update.message.reply_text(
@@ -52,7 +52,7 @@ async def age(update: Update, context: DEFAULT):
     return BIO
 
 
-async def bio(update: Update, context: DEFAULT):
+async def handle_bio(update: Update, context: DEFAULT):
     context.user_data['bio'] = update.message.text
 
     await update.message.reply_text(
@@ -60,7 +60,7 @@ async def bio(update: Update, context: DEFAULT):
     return PROFILE_PIC
 
 
-async def profile_pic(update: Update, context: DEFAULT):
+async def handle_profile_pic(update: Update, context: DEFAULT):
     content_creator_id = context.user_data.get('content_creator_id')
     first_name = context.user_data.get('first_name')
     country = context.user_data.get('country')
@@ -73,25 +73,25 @@ async def profile_pic(update: Update, context: DEFAULT):
 
     ContentCreators.create(
         content_creator_id=content_creator_id, first_name=first_name,
-        country=country, age=age, bio=bio, profile_pic=profile_pic_path).save()
+        country=country, handle_age=age, bio=bio, profile_pic=profile_pic_path).save()
 
     await update.message.reply_text(
-        text='Thank you for the registration! Use /start command to continue.')
+        text=f'Welcome to the club {first_name}! Use /start command to continue.')
     return END
 
 
-async def error(update: Update, context: DEFAULT):
-    await update.message.reply_text(f'I am not sure what "{update.message.text}" means. Please, try again.')
+async def handle_error(update: Update, context: DEFAULT):
+    await update.message.reply_text(f'I am not sure what "{update.message.text}" means. Please, retype your answer.')
 
 
 register_content_creator_conversation = ConversationHandler(
-    entry_points=[CallbackQueryHandler(callback=start_registration, pattern=f'^{REGISTER_CONTENT_CREATOR}$')],
+    entry_points=[CallbackQueryHandler(callback=q_handle_start_registration, pattern=f'^{REGISTER_CONTENT_CREATOR}$')],
     states={
-        FIRST_NAME: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=name)],
-        COUNTRY: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=country)],
-        AGE: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=age)],
-        BIO: [MessageHandler(filters=(filters.TEXT & ~filters.COMMAND), callback=bio)],
-        PROFILE_PIC: [MessageHandler(filters=filters.PHOTO, callback=profile_pic)]
+        FIRST_NAME: [MessageHandler(filters=(filters.TEXT and ~filters.COMMAND), callback=handle_first_name)],
+        COUNTRY: [MessageHandler(filters=(filters.TEXT and ~filters.COMMAND), callback=handle_country)],
+        AGE: [MessageHandler(filters=(filters.TEXT and filters.Regex(r'\d+') and ~filters.COMMAND), callback=handle_age)],
+        BIO: [MessageHandler(filters=(filters.TEXT and ~filters.COMMAND), callback=handle_bio)],
+        PROFILE_PIC: [MessageHandler(filters=filters.PHOTO, callback=handle_profile_pic)]
     },
-    fallbacks=[MessageHandler(filters=filters.ALL, callback=error)]
+    fallbacks=[MessageHandler(filters=filters.ALL, callback=handle_error)]
 )

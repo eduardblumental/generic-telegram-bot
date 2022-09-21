@@ -3,7 +3,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from .states import REGISTER, LEARN_MORE, REGISTER_USER, REGISTER_CONTENT_CREATOR
 
 
-unregistered_start_menu_keyboard = InlineKeyboardMarkup(
+unregistered_user_keyboard = InlineKeyboardMarkup(
     [
         [
             InlineKeyboardButton('Register ', callback_data=REGISTER),
