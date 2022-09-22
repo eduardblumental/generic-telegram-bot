@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from .keyboards import registered_user_keyboard
 
 from .changing_user_data.handlers import change_user_data_conversation
+from .finding_models.handlers import find_models_conversation
 
 DEFAULT = ContextTypes.DEFAULT_TYPE
 
@@ -16,5 +17,6 @@ async def registered_user_start(update: Update, context: DEFAULT):
 
 
 registered_user_handlers = [
-    change_user_data_conversation
+    change_user_data_conversation,
+    find_models_conversation
 ]

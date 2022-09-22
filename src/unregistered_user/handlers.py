@@ -3,6 +3,7 @@ from telegram.ext import CallbackQueryHandler, ContextTypes
 
 from .keyboards import unregistered_user_keyboard, registration_type_keyboard
 from .states import REGISTER, LEARN_MORE
+
 from .user_registration.handlers import register_user_conversation
 from .content_creator_registration.handlers import register_content_creator_conversation
 
