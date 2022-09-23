@@ -31,7 +31,7 @@ async def handle_username(update: Update, context: DEFAULT):
     user.save()
 
     await update.message.reply_text(
-        text=f'Welcome to the club {username}! Use /start command to continue.')
+        text=f"Welcome to the club {username}! Our girls are already waiting for you 🔥 Let's /start!")
     return END
 
 

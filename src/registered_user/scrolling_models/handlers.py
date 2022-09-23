@@ -10,28 +10,32 @@ from telegram.ext import (
 from db.models import ContentCreators, Followings
 
 from ..keyboards import registered_user_keyboard
-from ..states import FIND_MODELS
+from ..states import FIND_MODELS, MY_MODELS
 
 from .states import FOLLOW, UNFOLLOW, NEXT, PREVIOUS, BACK_TO_MENU
-from .utils import display_model
+from .utils import display_model, load_models
 
 DEFAULT = ContextTypes.DEFAULT_TYPE
 END = ConversationHandler.END
 
 
 async def q_handle_find_models(update: Update, context: DEFAULT):
-    query = update.callback_query
-    await query.answer()
-    await query.edit_message_text('Have fun 🤓')
-
-    context.user_data['user_id'] = update.effective_user.id
-    context.user_data['cc_ids'] = [cc.content_creator_id for cc in ContentCreators.select()]
-    context.user_data['current_cc_id'] = context.user_data.get('cc_ids')[0]
-    context.user_data['start_query_id'] = query.message.id
-
+    await load_models(update, context)
     await display_model(update, context)
 
     return FIND_MODELS
+
+
+async def q_handle_my_models(update: Update, context: DEFAULT):
+    await load_models(update, context)
+    if context.user_data.get('cc_ids'):
+        context.user_data['current_cc_id'] = context.user_data.get('cc_ids')[0]
+        await display_model(update, context)
+        return MY_MODELS
+    else:
+        await update.callback_query.edit_message_text(
+            text="It seems like you haven't followed anyone yet 💁🏻‍♀️ Use /start command to continue."
+        )
 
 
 async def q_handle_follow(update: Update, context: DEFAULT):
@@ -62,7 +66,9 @@ async def q_handle_next(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
 
-    context.user_data['cc_ids'] = context.user_data['cc_ids'][1:] + [context.user_data['cc_ids'][0]]
+    if len(context.user_data.get('cc_ids')) > 1:
+        context.user_data['cc_ids'] = context.user_data['cc_ids'][1:] + [context.user_data['cc_ids'][0]]
+
     await display_model(update, context)
 
 
@@ -70,7 +76,9 @@ async def q_handle_previous(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
 
-    context.user_data['cc_ids'] = [context.user_data['cc_ids'][-1]] + context.user_data['cc_ids'][:-1]
+    if len(context.user_data.get('cc_ids')) > 1:
+        context.user_data['cc_ids'] = [context.user_data['cc_ids'][-1]] + context.user_data['cc_ids'][:-1]
+
     await display_model(update, context)
 
 
@@ -82,7 +90,7 @@ async def q_handle_back_to_menu(update: Update, context: DEFAULT):
     await context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data.get('start_query_id'),
-        text="Hope you have found some good stuff. What's now? 😉",
+        text="I hope you were nice to the girls. Let me know what's on your mind 🧞‍♀️",
         reply_markup=registered_user_keyboard
     )
 
@@ -93,16 +101,22 @@ async def handle_error(update: Update, context: DEFAULT):
     await update.message.reply_text(f'I am not sure what "{update.message.text}" means. Consider using the buttons 💩')
 
 
-find_models_conversation = ConversationHandler(
-    entry_points=[CallbackQueryHandler(callback=q_handle_find_models, pattern=f'^{FIND_MODELS}$')],
+scrolling_models_handlers = [
+    CallbackQueryHandler(callback=q_handle_follow, pattern=f'^{FOLLOW}$'),
+    CallbackQueryHandler(callback=q_handle_unfollow, pattern=f'^{UNFOLLOW}$'),
+    CallbackQueryHandler(callback=q_handle_next, pattern=f'^{NEXT}$'),
+    CallbackQueryHandler(callback=q_handle_previous, pattern=f'^{PREVIOUS}$'),
+    CallbackQueryHandler(callback=q_handle_back_to_menu, pattern=f'^{BACK_TO_MENU}$')
+]
+
+scrolling_models_conversation = ConversationHandler(
+    entry_points=[
+        CallbackQueryHandler(callback=q_handle_find_models, pattern=f'^{FIND_MODELS}$'),
+        CallbackQueryHandler(callback=q_handle_my_models, pattern=f'^{MY_MODELS}$')
+    ],
     states={
-        FIND_MODELS: [
-            CallbackQueryHandler(callback=q_handle_follow, pattern=f'^{FOLLOW}$'),
-            CallbackQueryHandler(callback=q_handle_unfollow, pattern=f'^{UNFOLLOW}$'),
-            CallbackQueryHandler(callback=q_handle_next, pattern=f'^{NEXT}$'),
-            CallbackQueryHandler(callback=q_handle_previous, pattern=f'^{PREVIOUS}$'),
-            CallbackQueryHandler(callback=q_handle_back_to_menu, pattern=f'^{BACK_TO_MENU}$')
-        ]
+        FIND_MODELS: scrolling_models_handlers,
+        MY_MODELS: scrolling_models_handlers
     },
     fallbacks=[MessageHandler(filters=filters.ALL, callback=handle_error)]
 )

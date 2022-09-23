@@ -21,7 +21,7 @@ async def q_handle_register(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(
-        text='So, tell us why are you here?',
+        text='Why are you here?',
         reply_markup=registration_type_keyboard
     )
 
