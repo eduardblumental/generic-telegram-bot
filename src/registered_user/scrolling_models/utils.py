@@ -1,7 +1,7 @@
 from telegram import Update, InputMediaPhoto
 from telegram.ext import ContextTypes
 
-from db.models import ContentCreators, Followings
+from db.models import ContentCreator, Following
 
 from ..states import FIND_MODELS, MY_MODELS
 
@@ -12,14 +12,14 @@ DEFAULT = ContextTypes.DEFAULT_TYPE
 
 
 def is_following(user_id, cc_id):
-    return Followings.select().where(Followings.user_id == user_id, Followings.content_creator_id == cc_id).exists()
+    return Following.select().where(Following.user_id == user_id, Following.content_creator_id == cc_id).exists()
 
 
 async def display_model(update: Update, context: DEFAULT):
     user_id = context.user_data.get('user_id')
     cc_id = context.user_data.get('cc_ids')[0]
 
-    cc: ContentCreators = ContentCreators.select().where(ContentCreators.content_creator_id == cc_id).get()
+    cc: ContentCreator = ContentCreator.select().where(ContentCreator.content_creator_id == cc_id).get()
     caption = f"{cc.first_name}, {cc.age}, {cc.country}\n\n{cc.bio}"
 
     query = update.callback_query
@@ -55,9 +55,9 @@ async def load_models(update: Update, context: DEFAULT):
     context.user_data['start_query_id'] = query.message.id
 
     if query.data == FIND_MODELS:
-        context.user_data['cc_ids'] = [cc.content_creator_id for cc in ContentCreators.select()]
+        context.user_data['cc_ids'] = [cc.content_creator_id for cc in ContentCreator.select()]
     elif query.data == MY_MODELS:
         context.user_data['cc_ids'] = [cc.content_creator_id
-                                       for cc in ContentCreators.select()
+                                       for cc in ContentCreator.select()
                                        if is_following(context.user_data['user_id'], cc.content_creator_id)
                                        ]

@@ -13,7 +13,10 @@ DEFAULT = ContextTypes.DEFAULT_TYPE
 async def unregistered_user_start(update: Update, context: DEFAULT):
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="So, what's the plan?",
+        text="Welcome to Secret Exchange 🧞‍♀️ "
+             "We are a growing community of explorers and content creators from all over the world 🌍 "
+             "We hope you will enjoy your time being with us. "
+             "Ready to join?",
         reply_markup=unregistered_user_keyboard)
 
 
@@ -29,7 +32,7 @@ async def q_handle_register(update: Update, context: DEFAULT):
 async def q_handle_learn_more(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text('More info...')
+
     await unregistered_user_start(update, context)
 
 

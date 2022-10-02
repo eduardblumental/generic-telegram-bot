@@ -7,7 +7,7 @@ from telegram.ext import (
     filters
 )
 
-from db.models import ContentCreators, Followings
+from db.models import ContentCreator, Following
 
 from ..keyboards import registered_user_keyboard
 from ..states import FIND_MODELS, MY_MODELS
@@ -42,7 +42,7 @@ async def q_handle_follow(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
 
-    Followings.create(
+    Following.create(
         user_id=context.user_data.get('user_id'),
         content_creator_id=context.user_data.get('cc_ids')[0]
     )
@@ -54,9 +54,9 @@ async def q_handle_unfollow(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
 
-    Followings.delete().where(
-        Followings.user_id == context.user_data.get('user_id'),
-        Followings.content_creator_id == context.user_data.get('cc_ids')[0]
+    Following.delete().where(
+        Following.user_id == context.user_data.get('user_id'),
+        Following.content_creator_id == context.user_data.get('cc_ids')[0]
     ).execute()
 
     await display_model(update, context)

@@ -7,7 +7,7 @@ unregistered_user_keyboard = InlineKeyboardMarkup(
     [
         [
             InlineKeyboardButton('Register 🦸🏻‍♂️', callback_data=REGISTER),
-            InlineKeyboardButton('Learn more 👨🏻‍💻', callback_data=LEARN_MORE),
+            InlineKeyboardButton('Learn more 👨🏻‍💻', callback_data=LEARN_MORE, url='https://en.wikipedia.org')
         ]
     ]
 )

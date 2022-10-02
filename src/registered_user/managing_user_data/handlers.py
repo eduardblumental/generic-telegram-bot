@@ -7,7 +7,7 @@ from telegram.ext import (
     filters
 )
 
-from db.models import Users
+from db.models import User
 
 from ..states import CHANGE_USER_DATA, DELETE_USER_DATA
 
@@ -30,7 +30,7 @@ async def handle_change_username(update: Update, context: DEFAULT):
     user_id = update.effective_user.id
     new_username = update.message.text
 
-    q = Users.update({Users.username: new_username}).where(Users.user_id == user_id)
+    q = User.update({User.username: new_username}).where(User.user_id == user_id)
     q.execute()
 
     await update.message.reply_text(
@@ -46,7 +46,7 @@ async def q_handle_delete_user_data_request(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(
-        text='Are you sure you wanna do that?',
+        text='Are you 100% sure?',
         reply_markup=delete_user_data_request_keyboard
     )
 
@@ -57,7 +57,7 @@ async def q_handle_delete_user_data(update: Update, context: DEFAULT):
     query = update.callback_query
     await query.answer()
 
-    Users.delete().where(Users.user_id == update.effective_user.id).execute()
+    User.delete().where(User.user_id == update.effective_user.id).execute()
 
     await query.delete_message()
     await context.bot.send_message(

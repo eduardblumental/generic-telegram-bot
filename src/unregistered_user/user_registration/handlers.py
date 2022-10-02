@@ -7,7 +7,7 @@ from telegram.ext import (
     filters
 )
 
-from db.models import Users
+from db.models import User
 from .states import USERNAME
 from ..states import REGISTER_USER
 
@@ -27,7 +27,7 @@ async def handle_username(update: Update, context: DEFAULT):
     user_id = update.effective_user.id
     username = update.message.text
 
-    user = Users.create(user_id=user_id, username=username)
+    user = User.create(user_id=user_id, username=username)
     user.save()
 
     await update.message.reply_text(

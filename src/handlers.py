@@ -7,7 +7,7 @@ from telegram.ext import (
     filters
 )
 
-from db.models import Users, ContentCreators
+from db.models import User, ContentCreator
 from states import *
 
 from unregistered_user.handlers import unregistered_user_handlers, unregistered_user_start
@@ -18,10 +18,10 @@ DEFAULT = ContextTypes.DEFAULT_TYPE
 
 
 async def start(update: Update, context: DEFAULT):
-    if Users.select().where(Users.user_id == update.effective_user.id):
+    if User.select().where(User.user_id == update.effective_user.id):
         await registered_user_start(update, context)
         return REGISTERED_USER
-    elif ContentCreators.select().where(ContentCreators.content_creator_id == update.effective_user.id):
+    elif ContentCreator.select().where(ContentCreator.content_creator_id == update.effective_user.id):
         await update.message.reply_text(
             text="Welcome Content Creator")
         return CONTENT_CREATOR
